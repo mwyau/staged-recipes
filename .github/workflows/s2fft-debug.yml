@@ -1,0 +1,17 @@
+name: s2fft debug build
+
+on:
+  push:
+    branches:
+      - s2fft-debug-ci
+
+permissions:
+  contents: read
+
+jobs:
+  linux64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build linux64
+        run: python build-locally.py linux64
