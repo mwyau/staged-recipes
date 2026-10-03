@@ -26,6 +26,7 @@ build:
     down_prioritize_variant: ${{ 1 if cuda == "true" else 0 }}
   skip:
     - match(python, "<3.11")
+    - win
     - cuda and not linux
   script:
     - if: cuda and cuda_major >= 13
@@ -39,6 +40,8 @@ requirements:
     - ${{ stdlib('c') }}
     - cmake >=3.19
     - ninja
+    - if: unix
+      then: make
     - if: cuda
       then:
         - ${{ compiler('cuda') }}
@@ -60,7 +63,7 @@ requirements:
         - libcufft-static
         - cuda-culibos-static
   run:
-    - python >=3.11
+    - python
     - numpy >=1.20
     - jax >=0.5.0
 
