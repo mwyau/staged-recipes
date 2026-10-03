@@ -11,7 +11,11 @@ permissions:
 jobs:
   linux64:
     runs-on: ubuntu-latest
+    env:
+      AZURE: "True"
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Build linux64
         run: python build-locally.py linux64
