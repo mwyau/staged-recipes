@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [linux64_cuda129, linux64_cuda130]
+        config: [linux64, linux64_cuda129, linux64_cuda130]
     runs-on: ubuntu-latest
     env:
       AZURE: "True"
