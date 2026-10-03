@@ -30,7 +30,7 @@ build:
     - cuda and not linux
   script:
     - if: cuda and cuda_major >= 13
-      then: CMAKE_ARGS="-DCMAKE_CUDA_ARCHITECTURES=75;80;89" ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+      then: CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_CUDA_ARCHITECTURES=75;80;89" ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
     - if: not cuda or cuda_major < 13
       then: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
@@ -61,6 +61,8 @@ requirements:
         - cuda-cudart-static
         - libcufft-dev
         - libcufft-static
+    - if: cuda and cuda_major >= 13
+      then:
         - cuda-culibos-static
   run:
     - python
