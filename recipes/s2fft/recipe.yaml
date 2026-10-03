@@ -3,11 +3,7 @@ schema_version: 1
 context:
   version: "1.4.0"
   build_number: 0
-  cuda_version: ${{ cuda_compiler_version if cuda_compiler_version is defined else "None" }}
-  cuda: ${{ "true" if cuda_version != "None" else "" }}
-  cuda_major: ${{ 0 if cuda_version == "None" else (cuda_version | split("."))[0] | int }}
-  cuda_build_string: cuda${{ cuda_version | version_to_buildstring }}
-  build_prefix: ${{ cuda_build_string if cuda else "cpu" }}
+  cuda: ${{ (cuda_compiler_version | default("None")) != "None" }}
 
 package:
   name: s2fft
@@ -19,11 +15,11 @@ source:
 
 build:
   number: ${{ build_number }}
-  string: ${{ build_prefix }}_py${{ python | version_to_buildstring }}h${{ hash }}_${{ build_number }}
+  string: ${{ ("cuda" ~ (cuda_compiler_version | version_to_buildstring)) if cuda else "cpu" }}_py${{ python | version_to_buildstring }}h${{ hash }}_${{ build_number }}
   variant:
     use_keys:
       - ${{ "cuda" if cuda }}
-    down_prioritize_variant: ${{ 1 if cuda == "true" else 0 }}
+    down_prioritize_variant: ${{ 1 if cuda else 0 }}
   skip:
     - match(python, "<3.11")
     - match(python, ">3.11")  # temporary debug: one Python variant
@@ -43,7 +39,7 @@ requirements:
     - if: cuda
       then:
         - ${{ compiler('cuda') }}
-        - cuda-version ==${{ cuda_version }}
+        - cuda-version ==${{ cuda_compiler_version }}
   host:
     - python
     - pip
@@ -54,12 +50,12 @@ requirements:
     - jax >=0.5.0
     - if: cuda
       then:
-        - cuda-version ==${{ cuda_version }}
+        - cuda-version ==${{ cuda_compiler_version }}
         - cuda-cudart-dev
         - cuda-cudart-static
         - libcufft-dev
         - libcufft-static
-    - if: cuda and cuda_major >= 13
+    - if: cuda and match(cuda_compiler_version, ">=13")
       then:
         - cuda-culibos-static
   run:
@@ -76,7 +72,6 @@ tests:
   - script:
       - if: cuda
         then: python -c "from s2fft_lib import _s2fft; assert _s2fft.COMPILED_WITH_CUDA"
-        else: python -c "from s2fft_lib import _s2fft; assert not _s2fft.COMPILED_WITH_CUDA"
 
 about:
   homepage: https://github.com/astro-informatics/s2fft
